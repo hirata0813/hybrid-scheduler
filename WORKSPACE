@@ -9,7 +9,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 new_git_repository(
     name = "linux",
     remote = "https://github.com/google/ghost-kernel",
-    branch = "ghost-v5.11",
+    commit = "edd5f9490d82df24c16f90a62f7be05c6c389867",
     build_file = "//third_party:linux.BUILD",
 )
 

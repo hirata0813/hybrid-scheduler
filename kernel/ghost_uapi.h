@@ -25,7 +25,7 @@
  * process are the same version as each other. Each successive version changes
  * values in this header file, assumptions about operations in the kernel, etc.
  */
-#define GHOST_VERSION 83
+#define GHOST_VERSION 91
 
 /*
  * Define SCHED_GHOST via the ghost uapi unless it has already been defined
@@ -93,7 +93,7 @@ struct ghost_ioc_create_queue {
 	int elems;
 	int node;
 	int flags;
-	uint64_t mapsize;
+	ulong mapsize;
 };
 
 struct ghost_ioc_assoc_queue {
