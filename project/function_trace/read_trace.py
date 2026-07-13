@@ -5,9 +5,9 @@ import asyncio
 
 
 # Launch the C++ fibonacci function
-async def launch_command_cpp(arg):
+async def launch_command_cpp(arg, idx):
     command = (
-        f"/home/yuxuan/ghost-userspace/project/function_trace/launch_function.out {arg}"
+        f"/home/hirata/git/hybrid-scheduler/project/function_trace/launch_function.out {arg} {idx}"
     )
     # print(command)
     process = await asyncio.create_subprocess_shell(command)
@@ -26,16 +26,18 @@ async def main(outputfile):
     tasks = []
     # Read trace file
     with open(
-        "/home/yuxuan/hybrid-scheduler/project/function_trace/trace.txt", "r"
+        "/home/hirata/git/hybrid-scheduler/project/serverless_workload_generator/workload_dur.txt", "r"
     ) as f:
         start = time.time()
         lines = f.readlines()
+        idx = 0
         for line in lines:
             IAT = float(line.split(" ")[0])
             arg = int(line.split(" ")[1])  # arg is fibonacci N
             await asyncio.sleep(IAT)  # sleep for IAT seconds
-            task = asyncio.create_task(launch_command_cpp(arg))
+            task = asyncio.create_task(launch_command_cpp(arg, idx))
             tasks.append(task)
+            idx += 1
 
     # Wait for all tasks to complete
     await asyncio.gather(*tasks)
@@ -52,7 +54,7 @@ async def main_firecracker(outputfile):
     tasks = []
     # Read trace file
     with open(
-        "/home/yuxuan/hybrid-scheduler/project/function_trace/trace.txt", "r"
+        "/home/hirata/git/hybrid-scheduler/project/serverless_workload_generator/workload_dur.txt", "r"
     ) as f:
         start = time.time()
         lines = f.readlines()

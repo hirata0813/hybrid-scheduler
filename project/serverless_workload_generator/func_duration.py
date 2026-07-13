@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes, mark_inset
 
-durations_file = "../../Downloads/azurefunctions-dataset2019/function_durations_percentiles.anon.d01.csv"
-invoke_file = "../../Downloads/azurefunctions-dataset2019/invocations_per_function_md.anon.d01.csv"
+durations_file = "../../azurefunctions_dataset2019_azurefunctions-dataset2019/function_durations_percentiles.anon.d01.csv"
+invoke_file = "../../azurefunctions_dataset2019_azurefunctions-dataset2019/invocations_per_function_md.anon.d01.csv"
 workload_file = "workload_dur.txt"
 
 duration_df = pd.read_csv(durations_file).iloc[:, [2, 3]]
@@ -92,7 +92,7 @@ occur_time = []
 # Generate the workload item for each minute
 for minute in arg_df.columns[0:2]:
     for arg in arg_df.index:
-        invoke_times = arg_df.loc[arg, minute] / 100  # downscale
+        invoke_times = arg_df.loc[arg, minute] / 300  # downscale
         interval = 60 / invoke_times
         for n in range(int(invoke_times)):
             time = int(minute) * 60 + n * interval
