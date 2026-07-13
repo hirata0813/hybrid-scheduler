@@ -176,12 +176,12 @@ for name in tasknew firstrun taskdead; do
 done
 
 # ---- 5. CSV 生成 ----------------------------------------------------------
-#echo "== [5/5] CSV 生成"
-#python3 "$SCRIPT_DIR/merge_metrics.py" \
-#    --tasknew "$TASKNEW_JSON" \
-#    --firstrun "$FIRSTRUN_JSON" \
-#    --taskdead "$TASKDEAD_JSON" \
-#    --workload-log "$WORKLOAD_LOG" \
-#    --out "$RESULT_CSV"
+echo "== [5/5] CSV 生成"
+python3 "$SCRIPT_DIR/merge_metrics.py" \
+    --tasknew "$TASKNEW_JSON" \
+    --firstrun "$FIRSTRUN_JSON" \
+    --taskdead "$TASKDEAD_JSON" \
+    --workload-log "$WORKLOAD_LOG" \
+    --out "$RESULT_CSV"
 
 echo "== 完了: $RESULT_CSV"
