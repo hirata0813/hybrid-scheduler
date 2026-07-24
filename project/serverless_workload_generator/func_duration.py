@@ -64,6 +64,29 @@ dur_list = [
 ]
 fib = [29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46]
 
+ # whale で周波数を 4.5GHz に固定し，fibを CPU 0 に固定して実行した際のキャリブレーション結果
+#dur_list = [
+#    6,
+#    8,
+#    11,
+#    16,
+#    23,
+#    35,
+#    55,
+#    87,
+#    137,
+#    220,
+#    353,
+#    569,
+#    917,
+#    1481,
+#    2394,
+#    3870,
+#    6259,
+#    10125,
+#]
+#fib = [29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46]
+
 for index, row in duration_occurance.iterrows():
     Duration = list(row)[0]
     occur_list = list(row)[1:]
@@ -92,7 +115,7 @@ occur_time = []
 # Generate the workload item for each minute
 for minute in arg_df.columns[0:2]:
     for arg in arg_df.index:
-        invoke_times = arg_df.loc[arg, minute] / 300  # downscale
+        invoke_times = arg_df.loc[arg, minute] / 100  # downscale
         interval = 60 / invoke_times
         for n in range(int(invoke_times)):
             time = int(minute) * 60 + n * interval
