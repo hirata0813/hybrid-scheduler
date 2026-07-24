@@ -19,11 +19,13 @@ static inline uint64_t timespec_to_ns(const struct timespec& ts)
 }
 
 int main(int argc, char *argv[]) {
-    //struct sched_param param = {0};
-    //if (sched_setscheduler(0, SCHED_EXT, &param) != 0) {
-    //    perror("sched_setscheduler(SCHED_EXT) failed");
-    //    return -1;
-    //}
+    // read_trace を SCHED_FIFO など EXT クラスよりも上位のクラスで実行したとき，このタスクがそれを引き継がないようにする
+    struct sched_param param = {0};
+    if (sched_setscheduler(0, SCHED_OTHER, &param) != 0) {
+        perror("sched_setscheduler(SCHED_OTHER) failed");
+        return -1;
+    }
+
     int arg = atoi(argv[1]);
     int idx = atoi(argv[2]);
 
@@ -40,14 +42,14 @@ int main(int argc, char *argv[]) {
     //uint64_t taskdead = timespec_to_ns(end);
 
     pid_t tid = syscall(SYS_gettid);
-   std::cout
-       << "idx=" << idx
-       << " tid=" << tid
-       << " n=" << arg
-       << " result=" << result
-        //<< " tasknew=" << tasknew // これは，純粋な CFS で計測するときに必要な処理
-        //<< " taskdead=" << taskdead // これは，純粋な CFS で計測するときに必要な処理
-       << std::endl;
+   //std::cout
+   //    << "idx=" << idx
+   //    << " tid=" << tid
+   //    << " n=" << arg
+   //    << " result=" << result
+   //     //<< " tasknew=" << tasknew // これは，純粋な CFS で計測するときに必要な処理
+   //     //<< " taskdead=" << taskdead // これは，純粋な CFS で計測するときに必要な処理
+   //    << std::endl;
 
     return 0;
 }
