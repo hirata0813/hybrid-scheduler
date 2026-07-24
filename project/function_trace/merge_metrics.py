@@ -4,6 +4,10 @@ BPF Map (tasknew/firstrun/taskdead) の `bpftool map dump pinned <path> -j`
 出力と、ワークロードの標準出力 (idx=... tid=... n=... 形式の行) を
 PID (= tid) で突き合わせて CSV (PID,tasknew,firstrun,taskdead,n,idx) を生成する。
 
+ワークロードログから idx/tid/n の行が1つも抽出できなかった場合 (空ログ等) は、
+3つの BPF Map に登場する PID (キー) の和集合を使ってマージする
+(n, idx は空欄になる)。
+
 単体でも使える:
     python3 merge_metrics.py \
         --tasknew tasknew_map.json \
@@ -78,6 +82,69 @@ def parse_workload_log(path):
     return entries
 
 
+def build_rows_from_workload(workload_entries, tasknew_map, firstrun_map, taskdead_map):
+    """通常経路: ワークロードログの各行 (idx/tid/n) を軸にマージする。"""
+    rows = []
+    missing_pids = []
+
+    for entry in workload_entries:
+        pid = entry["tid"]
+
+        tasknew = tasknew_map.get(pid)
+        firstrun = firstrun_map.get(pid)
+        taskdead = taskdead_map.get(pid)
+
+        if tasknew is None or firstrun is None or taskdead is None:
+            missing_pids.append(pid)
+
+        rows.append(
+            [
+                pid,
+                "" if tasknew is None else tasknew,
+                "" if firstrun is None else firstrun,
+                "" if taskdead is None else taskdead,
+                entry["n"],
+                entry["idx"],
+            ]
+        )
+
+    return rows, missing_pids
+
+
+def build_rows_from_maps(tasknew_map, firstrun_map, taskdead_map):
+    """フォールバック経路: workload.log が空 (idx/tid/n を1行も抽出できなかった)
+    場合に使う。3つの BPF Map に登場する PID の和集合を使ってマージする。
+    n, idx はワークロードログ由来の情報がないため空欄にする。
+    """
+    rows = []
+    missing_pids = []
+
+    all_pids = sorted(
+        set(tasknew_map) | set(firstrun_map) | set(taskdead_map)
+    )
+
+    for pid in all_pids:
+        tasknew = tasknew_map.get(pid)
+        firstrun = firstrun_map.get(pid)
+        taskdead = taskdead_map.get(pid)
+
+        if tasknew is None or firstrun is None or taskdead is None:
+            missing_pids.append(pid)
+
+        rows.append(
+            [
+                pid,
+                "" if tasknew is None else tasknew,
+                "" if firstrun is None else firstrun,
+                "" if taskdead is None else taskdead,
+                "",
+                "",
+            ]
+        )
+
+    return rows, missing_pids
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--tasknew", required=True, help="tasknew_map の bpftool JSON ダンプ")
@@ -92,41 +159,31 @@ def main():
     taskdead_map = load_map_json(args.taskdead)
 
     workload_entries = parse_workload_log(args.workload_log)
-    if not workload_entries:
+
+    if workload_entries:
+        rows, missing_pids = build_rows_from_workload(
+            workload_entries, tasknew_map, firstrun_map, taskdead_map
+        )
+        source_desc = f"workload.log ({args.workload_log}) の {len(rows)} 行"
+    else:
         print(
             f"Warning: {args.workload_log} から idx/tid/n の行を"
-            " 1つも抽出できませんでした",
+            " 1つも抽出できませんでした。"
+            " BPF Map 上の PID の和集合を使ってマージします"
+            " (n, idx 列は空欄になります)",
             file=sys.stderr,
         )
-
-    missing_pids = []
+        rows, missing_pids = build_rows_from_maps(
+            tasknew_map, firstrun_map, taskdead_map
+        )
+        source_desc = f"BPF Map 由来の PID {len(rows)} 件"
 
     with open(args.out, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["PID", "tasknew", "firstrun", "taskdead", "n", "idx"])
+        writer.writerows(rows)
 
-        for entry in workload_entries:
-            pid = entry["tid"]
-
-            tasknew = tasknew_map.get(pid)
-            firstrun = firstrun_map.get(pid)
-            taskdead = taskdead_map.get(pid)
-
-            if tasknew is None or firstrun is None or taskdead is None:
-                missing_pids.append(pid)
-
-            writer.writerow(
-                [
-                    pid,
-                    "" if tasknew is None else tasknew,
-                    "" if firstrun is None else firstrun,
-                    "" if taskdead is None else taskdead,
-                    entry["n"],
-                    entry["idx"],
-                ]
-            )
-
-    print(f"{len(workload_entries)} 行を {args.out} に書き出しました")
+    print(f"{source_desc} を {args.out} に書き出しました")
     if missing_pids:
         uniq = sorted(set(missing_pids))
         print(

@@ -5,9 +5,9 @@ import subprocess
 # The function to launch the C++ fibonacci function
 def launch_command_cpp(arg):
     command = (
-        f"/home/yuxuan/ghost-userspace/project/function_trace/launch_function.out {arg}"
+        f"taskset -c 0 /home/hirata/git/hybrid-scheduler/project/function_trace/launch_function.out {arg} 1"
     )
-    print(command)
+    #print(command)
     subprocess.run(command, shell=True)
 
 
@@ -33,7 +33,7 @@ def loop(arg, repeat):
 
 if __name__ == "__main__":
     repeat = 100
-    for i in range(29, 30):
+    for i in range(29, 47):
         loop(i, repeat)
     with open("../log/calibrate.txt", "a") as f:
         f.write("dur_list = {}\n".format(dur_list))

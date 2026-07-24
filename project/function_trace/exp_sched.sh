@@ -108,13 +108,20 @@ cleanup_on_error() {
 }
 trap cleanup_on_error ERR
 
-# ---- 0. bpf-fs-dir の既存 pin をクリーンアップ ----------------------------
+# ---- 0. bpf-fs-dir の既存 pin をクリーンアップ & CPU の設定-----------------
 # 前回実行時に pin された Map がディレクトリに残っていると、
 # bpf_object__pin_maps() が -EEXIST で失敗することがあるため、
 # スケジューラ起動前に空にしておく (再実行の冪等性を確保する)。
 echo "== [0/5] $BPF_FS_DIR の既存 pin をクリーンアップ"
 mkdir -p "$BPF_FS_DIR"
 find "$BPF_FS_DIR" -mindepth 1 -maxdepth 1 -exec rm -f {} +
+
+# ハイパースレッディングをオフ
+echo off | sudo tee /sys/devices/system/cpu/smt/control
+# CPU 周波数を固定
+sudo cpupower -c 0-15 frequency-set -u 4.5GHz
+sudo cpupower -c 0-15 frequency-set -d 4.5GHz
+sudo cpupower -c 0-15 frequency-set -g performance
 
 # ---- 1. スケジューラ起動 -------------------------------------------------
 echo "== [1/5] スケジューラ起動: $SCHEDULER_BIN $SCHEDULER_ARGS"
