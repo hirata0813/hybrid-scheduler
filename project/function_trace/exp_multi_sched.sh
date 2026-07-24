@@ -17,5 +17,5 @@ sudo ./exp_sched.sh \
     --scheduler-bin scx_hybrid \
     --scheduler-args "--fifo-cpus 0,2,4,6 --cfs-cpus 8,10,12,14 --preemption-ns 1633000000 --global-cfs" \
     --bpf-fs-dir /sys/fs/bpf/scx_hybrid \
-    --workload-cmd "python3 read_trace.py --outputfile result01" \
+    --workload-cmd "/home/hirata/git/hybrid-scheduler/project/function_trace/read_trace.sh --outputfile result01" \
     --outdir results/scx_hybrid/${TIMESTAMP}/

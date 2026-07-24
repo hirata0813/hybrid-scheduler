@@ -60,35 +60,51 @@ echo "read_trace.sh PID: $$"
 # 失敗しても(Mapが未pin, bpftool不在, 権限不足等)ワークロード実行自体は
 # 継続できるよう、エラーは warning に留める。
 # ---------------------------------------------------------------------------
-register_self_as_other_task() {
-    local pid="$$"
+register_pid_to_map() {
+    local pid="$1"
 
-    if ! command -v bpftool >/dev/null 2>&1; then
-        echo "[warn] bpftool が見つかりません。othertask_map への登録をスキップします" >&2
-        return
-    fi
-
-    if [[ ! -e "$OTHERTASK_MAP_PIN_PATH" ]]; then
-        echo "[warn] othertask_map ($OTHERTASK_MAP_PIN_PATH) が見つかりません。BPFプログラムが未ロード、またはpinパスが異なる可能性があります" >&2
-        return
-    fi
-
-    # pid_t (u32, little endian) をバイト列に分解
+    # pid_t (u32, little endian)
     local b0=$(( pid & 0xff ))
     local b1=$(( (pid >> 8) & 0xff ))
     local b2=$(( (pid >> 16) & 0xff ))
     local b3=$(( (pid >> 24) & 0xff ))
+
     local key_hex
     key_hex=$(printf '%02x %02x %02x %02x' "$b0" "$b1" "$b2" "$b3")
 
-    if bpftool map update pinned "$OTHERTASK_MAP_PIN_PATH" key hex $key_hex value hex 01 2>/dev/null; then
-        echo "[info] othertask_map に自身の tid=${pid} を登録しました"
-    else
-        echo "[warn] othertask_map への書き込みに失敗しました" >&2
-    fi
+    bpftool map update pinned "$OTHERTASK_MAP_PIN_PATH" \
+        key hex $key_hex \
+        value hex 01 >/dev/null 2>&1
+}
+
+register_self_as_other_task() {
+    register_pid_to_map "$$"
+    echo "[info] registered self ($$)"
+}
+
+register_parent_scripts() {
+    local pid=$$
+
+    while [[ "$pid" -ne 1 ]]; do
+        local ppid
+        ppid=$(ps -o ppid= -p "$pid" | tr -d ' ')
+
+        local cmd
+        cmd=$(ps -o args= -p "$ppid")
+
+        case "$cmd" in
+            *exp_sched.sh*|*exp_multi_sched.sh*)
+                register_pid_to_map "$ppid"
+                echo "[info] registered parent script: pid=$ppid ($cmd)"
+                ;;
+        esac
+
+        pid=$ppid
+    done
 }
 
 register_self_as_other_task
+register_parent_scripts
 
 # ---------------------------------------------------------------------------
 # フィボナッチ計算 (C++バイナリ) を起動する
