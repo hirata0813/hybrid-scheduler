@@ -128,7 +128,7 @@ def _set_sched_ext():
 # Launch the C++ fibonacci function
 async def launch_command_cpp(arg, idx):
     command = (
-        f"/home/hirata/git/hybrid-scheduler/project/function_trace/launch_function.out {arg} {idx}"
+        f"sudo chrt -o 0 /home/hirata/git/hybrid-scheduler/project/function_trace/launch_function.out {arg} {idx}"
     )
     print(command)
 
