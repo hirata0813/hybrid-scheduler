@@ -128,9 +128,9 @@ def _set_sched_ext():
 # Launch the C++ fibonacci function
 async def launch_command_cpp(arg, idx):
     command = (
-        f"sudo chrt -o 0 /home/hirata/git/hybrid-scheduler/project/function_trace/launch_function.out {arg} {idx}"
+        f"chrt -o 0 /home/hirata/git/hybrid-scheduler/project/function_trace/launch_function.out {arg} {idx}"
     )
-    print(command)
+    #print(command)
 
     # ext クラスへの変更のため，テストとして以下を入れている
     #process = await asyncio.create_subprocess_shell(

@@ -9,3 +9,4 @@
 *.out
 *.bazel
 *.lock
+/project/function_trace/log/*
