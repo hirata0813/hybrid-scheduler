@@ -15,7 +15,7 @@ TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 sudo ./exp_sched.sh \
     --scheduler-bin scx_hybrid \
-    --scheduler-args "--fifo-cpus 0,2,4,6,21,22,23,24,25,26 --cfs-cpus 8,10,12,14,27,28,29,30,31 --preemption-ns 3633000000 --global-cfs" \
+    --scheduler-args "--fifo-cpus 0,1,2,3,4,5,6,7,16,17,18,19,20,21,22 --cfs-cpus 8,9,10,11,12,13,14,15,25,26,27,28,29,30,31 --preemption-ns 3633000000 --global-cfs" \
     --bpf-fs-dir /sys/fs/bpf/scx_hybrid \
-    --workload-cmd "chrt -f 50 python3 /home/hirata/git/hybrid-scheduler/project/function_trace/read_trace.py --outputfile result01" \
+    --workload-cmd "taskset -c 23 chrt -f 50 python3 /home/hirata/git/hybrid-scheduler/project/function_trace/read_trace.py --outputfile result01" \
     --outdir results/scx_hybrid/${TIMESTAMP}/

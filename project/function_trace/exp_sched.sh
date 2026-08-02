@@ -117,11 +117,11 @@ mkdir -p "$BPF_FS_DIR"
 find "$BPF_FS_DIR" -mindepth 1 -maxdepth 1 -exec rm -f {} +
 
 # ハイパースレッディングをオフ
-echo off | sudo tee /sys/devices/system/cpu/smt/control
+#echo off | sudo tee /sys/devices/system/cpu/smt/control
 # CPU 周波数を固定
-sudo cpupower -c 0-15 frequency-set -u 4.5GHz
-sudo cpupower -c 0-15 frequency-set -d 4.5GHz
-sudo cpupower -c 0-15 frequency-set -g performance
+sudo cpupower -c 0-31 frequency-set -u 4.5GHz
+sudo cpupower -c 0-31 frequency-set -d 4.5GHz
+sudo cpupower -c 0-31 frequency-set -g performance
 
 # ---- 1. スケジューラ起動 -------------------------------------------------
 echo "== [1/5] スケジューラ起動: $SCHEDULER_BIN $SCHEDULER_ARGS"

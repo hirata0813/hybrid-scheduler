@@ -42,14 +42,14 @@ int main(int argc, char *argv[]) {
     //uint64_t taskdead = timespec_to_ns(end);
 
     pid_t tid = syscall(SYS_gettid);
-   //std::cout
-   //    << "idx=" << idx
-   //    << " tid=" << tid
-   //    << " n=" << arg
-   //    << " result=" << result
-   //     //<< " tasknew=" << tasknew // これは，純粋な CFS で計測するときに必要な処理
-   //     //<< " taskdead=" << taskdead // これは，純粋な CFS で計測するときに必要な処理
-   //    << std::endl;
+   std::cout
+       << "idx=" << idx
+       << " tid=" << tid
+       << " n=" << arg
+       << " result=" << result
+        //<< " tasknew=" << tasknew // これは，純粋な CFS で計測するときに必要な処理
+        //<< " taskdead=" << taskdead // これは，純粋な CFS で計測するときに必要な処理
+       << std::endl;
 
     return 0;
 }
