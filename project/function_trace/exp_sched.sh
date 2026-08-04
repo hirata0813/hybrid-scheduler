@@ -94,6 +94,8 @@ TASKNEW_JSON="$OUTDIR/tasknew_map.json"
 FIRSTRUN_JSON="$OUTDIR/firstrun_map.json"
 TASKDEAD_JSON="$OUTDIR/taskdead_map.json"
 RESULT_CSV="$OUTDIR/metrics.csv"
+PYTHON_TIMESTAMP_CSV="$OUTDIR/result_launch_timestamps.csv"
+MERGE_CSV="$OUTDIR/merge.csv"
 
 echo "== 結果出力先: $OUTDIR"
 
@@ -191,4 +193,9 @@ python3 "$SCRIPT_DIR/merge_metrics.py" \
     --workload-log "$WORKLOAD_LOG" \
     --out "$RESULT_CSV"
 
-echo "== 完了: $RESULT_CSV"
+python3 "$SCRIPT_DIR/merge_bpf_timestamp_data_and_python_timestamp_data.py" \
+    --o "$MERGE_CSV" \
+    "$PYTHON_TIMESTAMP_CSV" \
+    "$RESULT_CSV" \
+
+echo "== 完了: $MERGE_CSV"

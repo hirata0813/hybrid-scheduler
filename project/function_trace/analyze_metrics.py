@@ -55,7 +55,7 @@ def load_tasks(path):
         for lineno, row in enumerate(reader, start=2):
             pid = row["PID"]
             try:
-                tasknew = int(row["tasknew"])
+                tasknew = int(row["clock_monotonic_raw"])
                 firstrun = int(row["firstrun"])
                 taskdead = int(row["taskdead"])
             except (ValueError, TypeError):

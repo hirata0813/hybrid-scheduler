@@ -125,10 +125,11 @@ def _set_sched_ext():
     """
     os.sched_setscheduler(0, 7, os.sched_param(0))
 
+launch_timestamps = []
 # Launch the C++ fibonacci function
 async def launch_command_cpp(arg, idx):
     command = (
-        f"taskset -c 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,25,26,27,28,29,30,31 chrt -o 0 /home/hirata/git/hybrid-scheduler/project/function_trace/launch_function.out {arg} {idx}"
+        f"taskset -c 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,25,26,27,28,29,30,31 chrt -o 0 /home/hirata/git/hybrid-scheduler/project/function_trace/launch_function.out {arg} {idx}"
     )
     #print(command)
 
@@ -137,6 +138,10 @@ async def launch_command_cpp(arg, idx):
     #    command,
     #    preexec_fn=_set_sched_ext,   # fork直後・exec直前にサブプロセス側で実行される
     #)
+
+    # create_subprocess_shell 直前の CLOCK_MONOTONIC タイムスタンプを取得し、配列に詰め込む
+    monotonic_ts_ns = time.clock_gettime_ns(time.CLOCK_MONOTONIC_RAW)
+    launch_timestamps.append((idx, arg, monotonic_ts_ns))
     process = await asyncio.create_subprocess_shell(command)
     await process.communicate()
 
@@ -147,6 +152,15 @@ async def launch_command_firecraker(firecracker_id, time):
     process = await asyncio.create_subprocess_shell(command)
     await process.communicate()
 
+def dump_launch_timestamps(outputfile):
+    """launch_timestamps の中身を idx 順に整列してログファイルへダンプする。"""
+    sorted_timestamps = sorted(launch_timestamps, key=lambda t: t[0])
+    dump_path = f"{outputfile}/result_launch_timestamps.csv"
+    with open(dump_path, "w") as f:
+        f.write("idx,n,clock_monotonic_raw\n")
+        for idx, arg, ts in sorted_timestamps:
+            f.write(f"{idx},{arg},{ts}\n")
+    print(f"[info] launch_timestamps ({len(sorted_timestamps)} 件) を {dump_path} にダンプしました")
 
 # Launch the C++ fibonacci function according to the trace file IAT
 async def main(outputfile):
@@ -171,10 +185,8 @@ async def main(outputfile):
     print("タスク起動に{:.2f} sかかった".format(end - start))
     await asyncio.gather(*tasks)
 
-    # log the results to the output file
-    with open(f"../log/{outputfile}.txt", "a") as f:
-        f.write(f"time elapsed: {end - start} s\n")
-
+    # 全タスク起動完了後、launch_timestamps の中身をダンプする
+    dump_launch_timestamps(outputfile)
 
 # Launch the C++ fibonacci function according to the trace file IAT
 async def main_firecracker(outputfile):
@@ -199,9 +211,6 @@ async def main_firecracker(outputfile):
     end = time.time()
     print("Time elapsed: {:.2f} s".format(end - start))
     # log the results to the output file
-    with open(f"../log/{outputfile}.txt", "a") as f:
-        f.write(f"time elapsed: {end - start} s\n")
-
 
 def map(arg):
     if arg <= 44:
