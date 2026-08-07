@@ -12,6 +12,7 @@ PID (= tid) で突き合わせて CSV (PID,tasknew,firstrun,taskdead,n,idx) を�
     python3 merge_metrics.py \
         --tasknew tasknew_map.json \
         --firstrun firstrun_map.json \
+        --real_firstrun real_firstrun_map.json \
         --taskdead taskdead_map.json \
         --workload-log workload.log \
         --out metrics.csv
@@ -82,7 +83,7 @@ def parse_workload_log(path):
     return entries
 
 
-def build_rows_from_workload(workload_entries, tasknew_map, firstrun_map, taskdead_map):
+def build_rows_from_workload(workload_entries, tasknew_map, firstrun_map, real_firstrun_map, taskdead_map):
     """通常経路: ワークロードログの各行 (idx/tid/n) を軸にマージする。"""
     rows = []
     missing_pids = []
@@ -92,9 +93,10 @@ def build_rows_from_workload(workload_entries, tasknew_map, firstrun_map, taskde
 
         tasknew = tasknew_map.get(pid)
         firstrun = firstrun_map.get(pid)
+        real_firstrun = real_firstrun_map.get(pid)
         taskdead = taskdead_map.get(pid)
 
-        if tasknew is None or firstrun is None or taskdead is None:
+        if tasknew is None or firstrun is None or real_firstrun is None or taskdead is None:
             missing_pids.append(pid)
 
         rows.append(
@@ -102,6 +104,7 @@ def build_rows_from_workload(workload_entries, tasknew_map, firstrun_map, taskde
                 pid,
                 "" if tasknew is None else tasknew,
                 "" if firstrun is None else firstrun,
+                "" if real_firstrun is None else real_firstrun,
                 "" if taskdead is None else taskdead,
                 entry["n"],
                 entry["idx"],
@@ -111,7 +114,7 @@ def build_rows_from_workload(workload_entries, tasknew_map, firstrun_map, taskde
     return rows, missing_pids
 
 
-def build_rows_from_maps(tasknew_map, firstrun_map, taskdead_map):
+def build_rows_from_maps(tasknew_map, firstrun_map, real_firstrun, taskdead_map):
     """フォールバック経路: workload.log が空 (idx/tid/n を1行も抽出できなかった)
     場合に使う。3つの BPF Map に登場する PID の和集合を使ってマージする。
     n, idx はワークロードログ由来の情報がないため空欄にする。
@@ -120,12 +123,13 @@ def build_rows_from_maps(tasknew_map, firstrun_map, taskdead_map):
     missing_pids = []
 
     all_pids = sorted(
-        set(tasknew_map) | set(firstrun_map) | set(taskdead_map)
+        set(tasknew_map) | set(firstrun_map) | set(real_firstrun_map) |set(taskdead_map)
     )
 
     for pid in all_pids:
         tasknew = tasknew_map.get(pid)
         firstrun = firstrun_map.get(pid)
+        real_firstrun = real_firstrun_map.get(pid)
         taskdead = taskdead_map.get(pid)
 
         if tasknew is None or firstrun is None or taskdead is None:
@@ -136,6 +140,7 @@ def build_rows_from_maps(tasknew_map, firstrun_map, taskdead_map):
                 pid,
                 "" if tasknew is None else tasknew,
                 "" if firstrun is None else firstrun,
+                "" if real_firstrun is None else real_firstrun,
                 "" if taskdead is None else taskdead,
                 "",
                 "",
@@ -149,6 +154,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--tasknew", required=True, help="tasknew_map の bpftool JSON ダンプ")
     ap.add_argument("--firstrun", required=True, help="firstrun_map の bpftool JSON ダンプ")
+    ap.add_argument("--real_firstrun", required=True, help="real_firstrun_map の bpftool JSON ダンプ")
     ap.add_argument("--taskdead", required=True, help="taskdead_map の bpftool JSON ダンプ")
     ap.add_argument("--workload-log", required=True, help="ワークロードの標準出力ログ")
     ap.add_argument("--out", required=True, help="出力 CSV パス")
@@ -156,13 +162,14 @@ def main():
 
     tasknew_map = load_map_json(args.tasknew)
     firstrun_map = load_map_json(args.firstrun)
+    real_firstrun_map = load_map_json(args.real_firstrun)
     taskdead_map = load_map_json(args.taskdead)
 
     workload_entries = parse_workload_log(args.workload_log)
 
     if workload_entries:
         rows, missing_pids = build_rows_from_workload(
-            workload_entries, tasknew_map, firstrun_map, taskdead_map
+            workload_entries, tasknew_map, firstrun_map, real_firstrun_map, taskdead_map
         )
         source_desc = f"workload.log ({args.workload_log}) の {len(rows)} 行"
     else:
@@ -174,13 +181,13 @@ def main():
             file=sys.stderr,
         )
         rows, missing_pids = build_rows_from_maps(
-            tasknew_map, firstrun_map, taskdead_map
+            tasknew_map, firstrun_map, real_firstrun_map, taskdead_map
         )
         source_desc = f"BPF Map 由来の PID {len(rows)} 件"
 
     with open(args.out, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["PID", "tasknew", "firstrun", "taskdead", "n", "idx"])
+        writer.writerow(["PID", "tasknew", "firstrun", "real_firstrun", "taskdead", "n", "idx"])
         writer.writerows(rows)
 
     print(f"{source_desc} を {args.out} に書き出しました")

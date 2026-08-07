@@ -92,6 +92,7 @@ SCHED_LOG="$OUTDIR/scheduler.log"
 WORKLOAD_LOG="$OUTDIR/workload.log"
 TASKNEW_JSON="$OUTDIR/tasknew_map.json"
 FIRSTRUN_JSON="$OUTDIR/firstrun_map.json"
+REAL_FIRSTRUN_JSON="$OUTDIR/real_firstrun_map.json"
 TASKDEAD_JSON="$OUTDIR/taskdead_map.json"
 RESULT_CSV="$OUTDIR/metrics.csv"
 PYTHON_TIMESTAMP_CSV="$OUTDIR/result_launch_timestamps.csv"
@@ -172,7 +173,7 @@ trap - ERR
 
 # ---- 4. BPF Map をダンプ -------------------------------------------------
 echo "== [4/5] BPF Map ダンプ (from $BPF_FS_DIR)"
-for name in tasknew firstrun taskdead; do
+for name in tasknew firstrun real_firstrun taskdead; do
     map_path="$BPF_FS_DIR/${name}_map"
     out_json="$OUTDIR/${name}_map.json"
     if [[ ! -e "$map_path" ]]; then
@@ -189,6 +190,7 @@ echo "== [5/5] CSV 生成"
 python3 "$SCRIPT_DIR/merge_metrics.py" \
     --tasknew "$TASKNEW_JSON" \
     --firstrun "$FIRSTRUN_JSON" \
+    --real_firstrun "$REAL_FIRSTRUN_JSON" \
     --taskdead "$TASKDEAD_JSON" \
     --workload-log "$WORKLOAD_LOG" \
     --out "$RESULT_CSV"
