@@ -18,3 +18,43 @@ Runtime for arg 45 is 2456.6296219825745 ms
 Runtime for arg 46 is 3653.3122539520264 ms
 dur_list = [8, 11, 13, 15, 17, 23, 34, 56, 81, 125, 209, 215, 354, 533, 934, 1393, 2457, 3653]
 fib = [29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46]
+Runtime for arg 29 is 4.084928035736084 ms
+Runtime for arg 30 is 5.409977436065674 ms
+Runtime for arg 31 is 7.53969669342041 ms
+Runtime for arg 32 is 10.978920459747314 ms
+Runtime for arg 33 is 16.597890853881836 ms
+Runtime for arg 34 is 25.761420726776123 ms
+Runtime for arg 35 is 40.58096885681152 ms
+Runtime for arg 36 is 64.36885595321655 ms
+Runtime for arg 37 is 103.00400257110596 ms
+Runtime for arg 38 is 165.34019231796265 ms
+Runtime for arg 39 is 266.7308521270752 ms
+Runtime for arg 40 is 429.89158153533936 ms
+Runtime for arg 41 is 693.9249324798584 ms
+Runtime for arg 42 is 1121.804871559143 ms
+Runtime for arg 43 is 1813.3679604530334 ms
+Runtime for arg 44 is 2929.191994667053 ms
+Runtime for arg 45 is 4739.156270027161 ms
+Runtime for arg 46 is 7664.0629529953 ms
+dur_list = [2929, 4739, 7664]
+fib = [44, 45, 46]
+Runtime for arg 29 is 4.1057586669921875 ms
+Runtime for arg 30 is 5.407810211181641 ms
+Runtime for arg 31 is 7.568454742431641 ms
+Runtime for arg 32 is 11.030769348144531 ms
+Runtime for arg 33 is 16.686081886291504 ms
+Runtime for arg 34 is 25.777482986450195 ms
+Runtime for arg 35 is 40.56046009063721 ms
+Runtime for arg 36 is 64.36870098114014 ms
+Runtime for arg 37 is 102.92885303497314 ms
+Runtime for arg 38 is 165.25635719299316 ms
+Runtime for arg 39 is 266.0700559616089 ms
+Runtime for arg 40 is 429.20875549316406 ms
+Runtime for arg 41 is 693.5176849365234 ms
+Runtime for arg 42 is 1120.0975179672241 ms
+Runtime for arg 43 is 1811.2219095230103 ms
+Runtime for arg 44 is 2928.798747062683 ms
+Runtime for arg 45 is 4737.78555393219 ms
+Runtime for arg 46 is 7664.441680908203 ms
+dur_list = [4, 5, 8, 11, 17, 26, 41, 64, 103, 165, 266, 429, 694, 1120, 1811, 2929, 4738, 7664]
+fib = [29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46]

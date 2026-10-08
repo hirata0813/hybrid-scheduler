@@ -32,7 +32,7 @@ def loop(arg, repeat):
 
 
 if __name__ == "__main__":
-    repeat = 100
+    repeat = 10
     for i in range(29, 47):
         loop(i, repeat)
     with open("../log/calibrate.txt", "a") as f:

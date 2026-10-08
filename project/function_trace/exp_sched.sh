@@ -122,8 +122,8 @@ find "$BPF_FS_DIR" -mindepth 1 -maxdepth 1 -exec rm -f {} +
 # ハイパースレッディングをオフ
 #echo off | sudo tee /sys/devices/system/cpu/smt/control
 # CPU 周波数を固定
-sudo cpupower -c 0-31 frequency-set -u 4.5GHz
-sudo cpupower -c 0-31 frequency-set -d 4.5GHz
+sudo cpupower -c 0-31 frequency-set -u 5.0GHz
+sudo cpupower -c 0-31 frequency-set -d 5.0GHz
 sudo cpupower -c 0-31 frequency-set -g performance
 
 # ---- 1. スケジューラ起動 -------------------------------------------------

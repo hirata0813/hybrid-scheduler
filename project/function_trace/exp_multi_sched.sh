@@ -13,6 +13,7 @@ TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 #
 #sleep 10
 
+#--scheduler-args "--fifo-cpus 28 --cfs-cpus 0-27 --preemption-ns 1633000000 --global-cfs" \
 sudo ./exp_sched.sh \
     --scheduler-bin scx_hybrid \
     --scheduler-args "--fifo-cpus 0,1,2,3,4,5,6,7,16,17,18,19,20,21 --cfs-cpus 8,9,10,11,12,13,14,15,22,23,24,25,26,27 --preemption-ns 1633000000 --global-cfs" \
