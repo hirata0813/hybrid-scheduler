@@ -13,10 +13,18 @@ TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 #
 #sleep 10
 
-#--scheduler-args "--fifo-cpus 28 --cfs-cpus 0-27 --preemption-ns 1633000000 --global-cfs" \
+    #--scheduler-args "--fifo-cpus 30 --cfs-cpus 0-29 --preemption-ns 1633000000 --global-cfs" \
+
 sudo ./exp_sched.sh \
     --scheduler-bin scx_hybrid \
-    --scheduler-args "--fifo-cpus 0,1,2,3,4,5,6,7,16,17,18,19,20,21 --cfs-cpus 8,9,10,11,12,13,14,15,22,23,24,25,26,27 --preemption-ns 1633000000 --global-cfs" \
+    --scheduler-args "--fifo-cpus 0,1,2,3,4,5,6,7,16,17,18,19,20,21,22 --cfs-cpus 8,9,10,11,12,13,14,15,23,24,25,26,27,28,29 --preemption-ns 1633000000 --global-cfs" \
     --bpf-fs-dir /sys/fs/bpf/scx_hybrid \
     --workload-cmd "taskset -c 31 python3 /home/hirata/git/hybrid-scheduler/project/function_trace/read_trace.py --outputfile results/scx_hybrid/${TIMESTAMP}/" \
     --outdir results/scx_hybrid/${TIMESTAMP}/
+
+#sudo ./exp_sched.sh \
+#    --scheduler-bin scx_hybridv2 \
+#    --scheduler-args "--fifo-cpus 0,1,2,3,4,5,6,7,16,17,18,19,20,21,22 --cfs-cpus 8,9,10,11,12,13,14,15,23,24,25,26,27,28,29 --preemption-ns 1633000000 --global-cfs" \
+#    --bpf-fs-dir /sys/fs/bpf/scx_hybridv2 \
+#    --workload-cmd "taskset -c 31 python3 /home/hirata/git/hybrid-scheduler/project/function_trace/read_trace.py --outputfile results/scx_hybridv2/${TIMESTAMP}/" \
+#    --outdir results/scx_hybridv2/${TIMESTAMP}/
